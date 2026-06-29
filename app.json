@@ -1,0 +1,52 @@
+{
+  "expo": {
+    "name": "FUBOOKS",
+    "slug": "fubooks",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "automatic",
+    "scheme": "fubooks",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FAFAFC"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "ng.futo.fubooks",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "FUBOOKS needs photo library access so admins can attach book cover images.",
+        "NSCameraUsageDescription": "FUBOOKS needs camera access so admins can take photos of book covers."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#6C4CF1"
+      },
+      "package": "ng.futo.fubooks",
+      "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "CAMERA"]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FUBOOKS needs photo library access so admins can attach book cover images."
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID"
+      },
+      "privyAppId": "REPLACE_WITH_PRIVY_APP_ID",
+      "privyClientId": "REPLACE_WITH_PRIVY_CLIENT_ID"
+    }
+  }
+}
