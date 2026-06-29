@@ -2,7 +2,8 @@ const { getDefaultConfig } = require('expo/metro-config');
 const path = require('path');
 
 const config = getDefaultConfig(__dirname);
-const nobleHashesRoot = path.resolve(__dirname, '..', '..', 'node_modules', '@noble', 'hashes');
+const appNodeModules = path.resolve(__dirname, 'node_modules');
+const nobleHashesRoot = path.join(appNodeModules, '@noble', 'hashes');
 
 const { resolver } = config;
 
@@ -24,5 +25,7 @@ config.resolver = {
     return context.resolveRequest(context, moduleName, platform);
   },
 };
+
+config.watchFolders = Array.from(new Set([...(config.watchFolders || []), appNodeModules]));
 
 module.exports = config;
