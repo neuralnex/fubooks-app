@@ -12,7 +12,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#FAFAFC"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "ng.futo.fubooks",
@@ -27,7 +29,16 @@
         "backgroundColor": "#6C4CF1"
       },
       "package": "ng.futo.fubooks",
-      "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE", "CAMERA"]
+      "permissions": [
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_EXTERNAL_STORAGE",
+        "android.permission.WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -42,11 +53,18 @@
       ]
     ],
     "extra": {
-      "eas": {
-        "projectId": "REPLACE_WITH_YOUR_EAS_PROJECT_ID"
-      },
       "privyAppId": "REPLACE_WITH_PRIVY_APP_ID",
-      "privyClientId": "REPLACE_WITH_PRIVY_CLIENT_ID"
+      "privyClientId": "REPLACE_WITH_PRIVY_CLIENT_ID",
+      "eas": {
+        "projectId": "c5feac66-98da-47e2-b73d-45f4a72c7207"
+      }
+    },
+    "owner": "zionzurri",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/c5feac66-98da-47e2-b73d-45f4a72c7207"
     }
   }
 }
