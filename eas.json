@@ -8,7 +8,9 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
+        "EXPO_PUBLIC_PRIVY_APP_ID": "",
+        "EXPO_PUBLIC_PRIVY_CLIENT_ID": ""
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -21,7 +23,9 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
+        "EXPO_PUBLIC_PRIVY_APP_ID": "",
+        "EXPO_PUBLIC_PRIVY_CLIENT_ID": ""
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -33,7 +37,9 @@
     "production": {
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
+        "EXPO_PUBLIC_PRIVY_APP_ID": "",
+        "EXPO_PUBLIC_PRIVY_CLIENT_ID": ""
       },
       "ios": {
         "resourceClass": "m-medium"

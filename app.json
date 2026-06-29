@@ -53,8 +53,8 @@
       ]
     ],
     "extra": {
-      "privyAppId": "REPLACE_WITH_PRIVY_APP_ID",
-      "privyClientId": "REPLACE_WITH_PRIVY_CLIENT_ID",
+      "privyAppId": "",
+      "privyClientId": "",
       "eas": {
         "projectId": "c5feac66-98da-47e2-b73d-45f4a72c7207"
       }
