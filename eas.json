@@ -10,6 +10,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
         "PRIVY_APP_ID": "cmqwmwbhv03x00ckywkq9h7kn",
+        "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
         "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
         "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----"
       },
@@ -26,6 +27,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
         "PRIVY_APP_ID": "cmqwmwbhv03x00ckywkq9h7kn",
+        "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
         "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
         "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----"
       },
@@ -41,6 +43,7 @@
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
         "PRIVY_APP_ID": "cmqwmwbhv03x00ckywkq9h7kn",
+        "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
         "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
         "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----"
       },
