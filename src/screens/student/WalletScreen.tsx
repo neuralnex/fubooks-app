@@ -68,8 +68,8 @@ export function WalletScreen({
                 <Button
                   label="Fund Wallet"
                   onPress={() => navigation.navigate('FundWallet')}
-                  variant="secondary"
-                  style={[styles.actionButton, { backgroundColor: '#FFFFFF' }]}
+                  variant="primary"
+                  style={styles.actionButton}
                 />
                 {/* "Withdraw Funds" — visually disabled teaser. Tapping NEVER calls an
                     API or navigates to a payout form; it only opens the Coming Soon sheet. */}

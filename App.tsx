@@ -20,6 +20,7 @@ import { spacing, typography } from './src/theme/colors';
 // Read from app.json's expo.extra (see app.json + eas.json for per-environment values).
 const PRIVY_APP_ID = (Constants.expoConfig?.extra?.privyAppId as string) ?? '';
 const PRIVY_CLIENT_ID = (Constants.expoConfig?.extra?.privyClientId as string) ?? '';
+const ADMIN_ONLY = (Constants.expoConfig?.extra?.adminOnly as boolean) ?? false;
 
 type AppMode = 'student' | 'admin';
 const GestureRootView = GestureHandlerRootView as React.ComponentType<PropsWithChildren<ViewProps>>;
@@ -97,9 +98,9 @@ function RootContent() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <NavigationContainer>
-        {mode === 'student' ? <StudentApp /> : <AdminApp />}
+        {ADMIN_ONLY ? <AdminApp /> : mode === 'student' ? <StudentApp /> : <AdminApp />}
       </NavigationContainer>
-      {__DEV__ && <ModeSwitcher mode={mode} onChange={setMode} />}
+      {!ADMIN_ONLY && __DEV__ && <ModeSwitcher mode={mode} onChange={setMode} />}
     </View>
   );
 }

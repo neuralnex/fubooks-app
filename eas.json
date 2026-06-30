@@ -38,6 +38,24 @@
         "buildType": "apk"
       }
     },
+    "admin-preview": {
+      "distribution": "internal",
+      "channel": "admin-preview",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
+        "PRIVY_APP_ID": "cmqwmwbhv03x00ckywkq9h7kn",
+        "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
+        "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
+        "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----",
+        "ADMIN_ONLY": "true"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "apk"
+      }
+    },
     "production": {
       "channel": "production",
       "env": {
@@ -46,6 +64,24 @@
         "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
         "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
         "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----"
+      },
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "autoIncrement": true
+    },
+    "admin-production": {
+      "channel": "admin-production",
+      "env": {
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
+        "PRIVY_APP_ID": "cmqwmwbhv03x00ckywkq9h7kn",
+        "PRIVY_CLIENT_ID": "client-WY6aUvgzyX5foZyf4BjXKfVE68b3QbxrCDC6vL4HhMaaz",
+        "PRIVY_APP_SECRET": "privy_app_secret_2wZw8d1dMkdoWVXjgcbGSALag6C194L3637545KvaG5tAgnwd92wswuxzYbkLJqr4Xvy5aCAqcDybWXMjAhSoB3N",
+        "PRIVY_VERIFICATION_KEY": "-----BEGIN PUBLIC KEY-----MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE9y7n0ngpCGLEjMYeA0ZEaACWxPZuPxfmsi/xTqRPRD/fkm1Ma4tTPDcfVQsHoJde8QqvJ0mo84a+k4+l/nQmTw==-----END PUBLIC KEY-----",
+        "ADMIN_ONLY": "true"
       },
       "ios": {
         "resourceClass": "m-medium"

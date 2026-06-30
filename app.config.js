@@ -11,6 +11,8 @@ module.exports = ({ config }) => {
       process.env.EXPO_PUBLIC_PRIVY_CLIENT_ID ||
       config.extra?.privyClientId ||
       '',
+    adminOnly:
+      (process.env.ADMIN_ONLY === 'true') || config.extra?.adminOnly || false,
   };
 
   return {

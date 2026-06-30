@@ -53,13 +53,18 @@ export function LevelSelector({ selected, onSelect }: LevelSelectorProps) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
-    gap: spacing.sm,
     paddingVertical: spacing.sm,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   pill: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
     borderRadius: radius.full,
     borderWidth: 1,
+    marginRight: spacing.sm,
+    minWidth: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
