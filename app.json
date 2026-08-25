@@ -20,7 +20,8 @@
       "bundleIdentifier": "ng.futo.fubooks",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "FUBOOKS needs photo library access so admins can attach book cover images.",
-        "NSCameraUsageDescription": "FUBOOKS needs camera access so admins can take photos of book covers."
+        "NSCameraUsageDescription": "FUBOOKS needs camera access so admins can take photos of book covers.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {

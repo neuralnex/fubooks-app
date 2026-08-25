@@ -8,11 +8,7 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
-        "PRIVY_APP_ID": "${PRIVY_APP_ID}",
-        "PRIVY_CLIENT_ID": "${PRIVY_CLIENT_ID}",
-        "PRIVY_APP_SECRET": "${PRIVY_APP_SECRET}",
-        "PRIVY_VERIFICATION_KEY": "${PRIVY_VERIFICATION_KEY}"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -25,11 +21,7 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
-        "PRIVY_APP_ID": "${PRIVY_APP_ID}",
-        "PRIVY_CLIENT_ID": "${PRIVY_CLIENT_ID}",
-        "PRIVY_APP_SECRET": "${PRIVY_APP_SECRET}",
-        "PRIVY_VERIFICATION_KEY": "${PRIVY_VERIFICATION_KEY}"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -43,11 +35,7 @@
       "channel": "admin-preview",
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
-        "PRIVY_APP_ID": "${PRIVY_APP_ID}",
-        "PRIVY_CLIENT_ID": "${PRIVY_CLIENT_ID}",
-        "PRIVY_APP_SECRET": "${PRIVY_APP_SECRET}",
-        "PRIVY_VERIFICATION_KEY": "${PRIVY_VERIFICATION_KEY}",
-        "ADMIN_ONLY": "true"
+        "EXPO_PUBLIC_ADMIN_ONLY": "true"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -59,11 +47,7 @@
     "production": {
       "channel": "production",
       "env": {
-        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
-        "PRIVY_APP_ID": "${PRIVY_APP_ID}",
-        "PRIVY_CLIENT_ID": "${PRIVY_CLIENT_ID}",
-        "PRIVY_APP_SECRET": "${PRIVY_APP_SECRET}",
-        "PRIVY_VERIFICATION_KEY": "${PRIVY_VERIFICATION_KEY}"
+        "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com"
       },
       "ios": {
         "resourceClass": "m-medium"
@@ -77,11 +61,7 @@
       "channel": "admin-production",
       "env": {
         "EXPO_PUBLIC_API_BASE_URL": "https://fubooks-server.onrender.com",
-        "PRIVY_APP_ID": "${PRIVY_APP_ID}",
-        "PRIVY_CLIENT_ID": "${PRIVY_CLIENT_ID}",
-        "PRIVY_APP_SECRET": "${PRIVY_APP_SECRET}",
-        "PRIVY_VERIFICATION_KEY": "${PRIVY_VERIFICATION_KEY}",
-        "ADMIN_ONLY": "true"
+        "EXPO_PUBLIC_ADMIN_ONLY": "true"
       },
       "ios": {
         "resourceClass": "m-medium"
