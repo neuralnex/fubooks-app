@@ -9,6 +9,7 @@ import {
   Pressable,
   Alert,
   Switch,
+  Modal,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeContext';
@@ -33,6 +34,10 @@ const EMPTY_FORM = {
  * will only create other admins and handle their access levels." The backend
  * enforces this independently (requireSuperAdmin middleware); this client-side
  * check is purely a UX nicety to avoid showing a form that would just 403.
+ *
+ * L-1: in addition to the active/inactive switch, super admins can now tap a row
+ * to change another admin's `role` and `accessLevel` via PATCH. This makes the
+ * values mutable from the app instead of being permanent-after-creation.
  */
 export function AdminManagementScreen() {
   const { colors } = useTheme();
@@ -40,6 +45,11 @@ export function AdminManagementScreen() {
   const getToken = useAdminGetToken();
   const [admins, setAdmins] = useState<AdminDTO[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingAdmin, setEditingAdmin] = useState<AdminDTO | null>(null);
+  const [editForm, setEditForm] = useState<{ role: AdminRole; accessLevel: AdminAccessLevel }>({
+    role: 'ADMIN',
+    accessLevel: 'READ_ONLY',
+  });
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
 
@@ -102,6 +112,25 @@ export function AdminManagementScreen() {
       await loadAdmins();
     } catch (err) {
       Alert.alert('Update failed', err instanceof ApiClientError ? err.message : 'Please try again.');
+    }
+  };
+
+  const openEdit = (target: AdminDTO) => {
+    setEditingAdmin(target);
+    setEditForm({ role: target.role, accessLevel: target.accessLevel });
+  };
+
+  const saveEdit = async () => {
+    if (!editingAdmin) return;
+    setSubmitting(true);
+    try {
+      await apiClient.patch(`/api/v1/admin/admins/${editingAdmin.id}`, editForm, getToken);
+      setEditingAdmin(null);
+      await loadAdmins();
+    } catch (err) {
+      Alert.alert('Update failed', err instanceof ApiClientError ? err.message : 'Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -214,8 +243,12 @@ export function AdminManagementScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.content}
           renderItem={({ item }) => (
-            <View
-              style={[styles.adminRow, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            <Pressable
+              onPress={() => item.id !== admin?.id && openEdit(item)}
+              style={[
+                styles.adminRow,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
             >
               <View style={{ flex: 1 }}>
                 <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>
@@ -235,10 +268,85 @@ export function AdminManagementScreen() {
                   trackColor={{ false: colors.disabled, true: colors.primary }}
                 />
               )}
-            </View>
+            </Pressable>
           )}
         />
       )}
+
+      <Modal
+        visible={editingAdmin !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setEditingAdmin(null)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+            <Text style={[typography.h2, { color: colors.textPrimary }]}>
+              Edit {editingAdmin?.fullName}
+            </Text>
+            <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm }]}>
+              Role
+            </Text>
+            <View style={styles.chipRow}>
+              {ADMIN_ROLES.map((r) => (
+                <Pressable
+                  key={r}
+                  onPress={() => setEditForm((f) => ({ ...f, role: r }))}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: editForm.role === r ? colors.primary : colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: editForm.role === r ? '#FFFFFF' : colors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: '600',
+                    }}
+                  >
+                    {r.replace('_', ' ')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.md }]}>
+              Access Level
+            </Text>
+            <View style={styles.chipRow}>
+              {ACCESS_LEVELS.map((lvl) => (
+                <Pressable
+                  key={lvl}
+                  onPress={() => setEditForm((f) => ({ ...f, accessLevel: lvl }))}
+                  style={[
+                    styles.chip,
+                    {
+                      backgroundColor: editForm.accessLevel === lvl ? colors.primary : colors.background,
+                      borderColor: colors.border,
+                    },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: editForm.accessLevel === lvl ? '#FFFFFF' : colors.textSecondary,
+                      fontSize: 12,
+                      fontWeight: '600',
+                    }}
+                  >
+                    {lvl.replace('_', ' ')}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+            <View style={styles.modalActions}>
+              <Button label="Cancel" variant="outline" onPress={() => setEditingAdmin(null)} />
+              <Button label="Save" onPress={saveEdit} loading={submitting} />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -312,5 +420,20 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     marginBottom: spacing.sm,
+  },
+  modalBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: spacing.lg,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.lg,
   },
 });

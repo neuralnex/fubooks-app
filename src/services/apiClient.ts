@@ -10,6 +10,10 @@ import type { ApiErrorBody } from '../sharedTypes';
  */
 const API_BASE_URL: string = process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:4000';
 
+/** L-5: per-request timeout. Render free-tier cold starts can hang 30s+; we cut
+ * that off so the user sees a clear error rather than a stalled spinner. */
+const DEFAULT_TIMEOUT_MS = 15_000;
+
 export class ApiClientError extends Error {
   constructor(public statusCode: number, public code: string, message: string) {
     super(message);
@@ -30,11 +34,17 @@ async function request<T>(
     body?: unknown;
     getToken?: GetTokenFn;
     skipAuth?: boolean;
+    timeoutMs?: number;
   } = {}
 ): Promise<T> {
-  const { method = 'GET', body, getToken, skipAuth = false } = options;
+  const { method = 'GET', body, getToken, skipAuth = false, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
 
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {};
+  // Only set Content-Type when there's a body to send. GETs without a body don't
+  // need it, and some upstreams reject unsolicited Content-Type on GET.
+  if (body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (!skipAuth && getToken) {
     const token = await getToken();
@@ -43,11 +53,26 @@ async function request<T>(
     }
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    method,
-    headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
-  });
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
+      signal: controller.signal,
+    });
+  } catch (err) {
+    clearTimeout(timer);
+    if (err instanceof Error && err.name === 'AbortError') {
+      throw new ApiClientError(0, 'TIMEOUT', 'Request timed out. Please try again.');
+    }
+    throw new ApiClientError(0, 'NETWORK_ERROR', 'Could not reach the server. Check your connection.');
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (!response.ok) {
     let errorBody: ApiErrorBody | null = null;
