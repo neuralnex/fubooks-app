@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, TextInput, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../theme/ThemeContext';
 import { spacing, radius, typography } from '../theme/colors';
@@ -33,6 +33,9 @@ export function ProfileScreen() {
     setSaving(true);
     try {
       await updateProfile({ fullName, email, matricNumber, level, faculty });
+      Alert.alert('Success', 'Profile updated successfully.');
+    } catch (err) {
+      Alert.alert('Update failed', err instanceof Error ? err.message : 'Please try again.');
     } finally {
       setSaving(false);
     }
@@ -43,7 +46,11 @@ export function ProfileScreen() {
       style={[styles.container, { backgroundColor: colors.background }]}
       edges={['top']}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
         <Text style={[typography.h1, { color: colors.textPrimary }]}>My Profile</Text>
 
         <Field label="Full Name" value={fullName} onChange={setFullName} colors={colors} />
@@ -177,7 +184,7 @@ function Field({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: spacing.lg },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl + spacing.lg },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,

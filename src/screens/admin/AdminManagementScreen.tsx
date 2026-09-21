@@ -341,8 +341,20 @@ export function AdminManagementScreen() {
               ))}
             </View>
             <View style={styles.modalActions}>
-              <Button label="Cancel" variant="outline" onPress={() => setEditingAdmin(null)} />
-              <Button label="Save" onPress={saveEdit} loading={submitting} />
+              <Button
+                label="Cancel"
+                variant="outline"
+                onPress={() => setEditingAdmin(null)}
+                fullWidth={false}
+                style={styles.modalBtn}
+              />
+              <Button
+                label="Save"
+                onPress={saveEdit}
+                loading={submitting}
+                fullWidth={false}
+                style={styles.modalBtn}
+              />
             </View>
           </View>
         </View>
@@ -398,7 +410,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  content: { padding: spacing.lg },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,
@@ -420,14 +432,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     marginBottom: spacing.sm,
+    gap: spacing.md,
   },
   modalBackdrop: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
     padding: spacing.lg,
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
+    width: '100%',
+    maxWidth: 480,
     borderRadius: radius.lg,
     padding: spacing.lg,
   },
@@ -435,5 +451,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: spacing.sm,
     marginTop: spacing.lg,
+  },
+  modalBtn: {
+    flex: 1,
   },
 });

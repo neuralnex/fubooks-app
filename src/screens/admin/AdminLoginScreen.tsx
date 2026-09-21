@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../theme/ThemeContext';
 import { spacing, radius, typography } from '../../theme/colors';
@@ -33,72 +33,78 @@ export function AdminLoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}
       >
-        <View style={styles.content}>
-          <Text style={[typography.h1, { color: colors.primary }]}>FUBOOKS Admin</Text>
-          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
-            Sign in to manage the catalog and view analytics.
-          </Text>
-
-          <View style={{ marginTop: spacing.xxl }}>
-            <Text
-              style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}
-            >
-              Email
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.inner}>
+            <Text style={[typography.h1, { color: colors.primary }]}>FUBOOKS Admin</Text>
+            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
+              Sign in to manage the catalog and view analytics.
             </Text>
-            <TextInput
-              value={email}
-              onChangeText={setEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              placeholderTextColor={colors.textSecondary}
-              style={[
-                styles.input,
-                {
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                },
-              ]}
-            />
 
-            <Text
-              style={[
-                typography.caption,
-                { color: colors.textSecondary, marginTop: spacing.lg, marginBottom: spacing.xs },
-              ]}
-            >
-              Password
-            </Text>
-            <TextInput
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry
-              placeholderTextColor={colors.textSecondary}
-              style={[
-                styles.input,
-                {
-                  borderColor: colors.border,
-                  color: colors.textPrimary,
-                  backgroundColor: colors.surface,
-                },
-              ]}
-            />
-
-            {error && (
-              <Text style={[typography.caption, { color: colors.error, marginTop: spacing.sm }]}>
-                {error}
+            <View style={{ marginTop: spacing.xxl }}>
+              <Text
+                style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}
+              >
+                Email
               </Text>
-            )}
+              <TextInput
+                value={email}
+                onChangeText={setEmail}
+                autoCapitalize="none"
+                keyboardType="email-address"
+                placeholderTextColor={colors.textSecondary}
+                style={[
+                  styles.input,
+                  {
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              />
 
-            <Button
-              label="Sign In"
-              onPress={handleLogin}
-              loading={busy}
-              disabled={!email || !password}
-              style={{ marginTop: spacing.xl }}
-            />
+              <Text
+                style={[
+                  typography.caption,
+                  { color: colors.textSecondary, marginTop: spacing.lg, marginBottom: spacing.xs },
+                ]}
+              >
+                Password
+              </Text>
+              <TextInput
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                placeholderTextColor={colors.textSecondary}
+                style={[
+                  styles.input,
+                  {
+                    borderColor: colors.border,
+                    color: colors.textPrimary,
+                    backgroundColor: colors.surface,
+                  },
+                ]}
+              />
+
+              {error && (
+                <Text style={[typography.caption, { color: colors.error, marginTop: spacing.sm }]}>
+                  {error}
+                </Text>
+              )}
+
+              <Button
+                label="Sign In"
+                onPress={handleLogin}
+                loading={busy}
+                disabled={!email || !password}
+                style={{ marginTop: spacing.xl }}
+              />
+            </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -107,7 +113,17 @@ export function AdminLoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   flex: { flex: 1 },
-  content: { flex: 1, padding: spacing.xl, justifyContent: 'center' },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+  },
+  inner: {
+    width: '100%',
+    maxWidth: 440,
+    alignSelf: 'center',
+  },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,

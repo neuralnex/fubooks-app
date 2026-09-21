@@ -84,7 +84,8 @@ export function AdminDashboardScreen() {
           {barData.length > 0 ? (
             <BarChart
               data={barData}
-              barWidth={28}
+              barWidth={22}
+              spacing={16}
               barBorderRadius={6}
               noOfSections={4}
               yAxisThickness={0}
@@ -121,8 +122,8 @@ export function AdminDashboardScreen() {
               <PieChart
                 data={pieData}
                 donut
-                radius={80}
-                innerRadius={50}
+                radius={75}
+                innerRadius={48}
                 innerCircleColor={colors.surface}
                 centerLabelComponent={() => (
                   <View style={{ alignItems: 'center' }}>
@@ -140,7 +141,7 @@ export function AdminDashboardScreen() {
                     <Text style={[typography.caption, { color: colors.textPrimary, flex: 1 }]}>
                       {slice.label}
                     </Text>
-                    <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                    <Text style={[typography.caption, { color: colors.textSecondary, marginLeft: spacing.xs }]}>
                       {slice.text}
                     </Text>
                   </View>
@@ -168,16 +169,16 @@ function EmptyState({ colors }: { colors: { textSecondary: string } }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { padding: spacing.lg },
+  content: { padding: spacing.lg, paddingBottom: spacing.xxl + spacing.lg },
   card: {
     borderRadius: radius.lg,
     borderWidth: 1,
     padding: spacing.lg,
     marginTop: spacing.lg,
   },
-  totalRow: { flexDirection: 'row', marginTop: spacing.md },
-  donutRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  totalRow: { flexDirection: 'row', marginTop: spacing.md, alignItems: 'center' },
+  donutRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   legend: { flex: 1, gap: spacing.xs },
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  legendDot: { width: 10, height: 10, borderRadius: radius.full },
+  legendRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.xs },
+  legendDot: { width: 10, height: 10, borderRadius: radius.full, marginTop: 4 },
 });

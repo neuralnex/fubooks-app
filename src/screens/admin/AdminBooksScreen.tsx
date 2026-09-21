@@ -131,7 +131,11 @@ export function AdminBooksScreen() {
       </View>
 
       {showForm ? (
-        <ScrollView contentContainerStyle={styles.formContent}>
+        <ScrollView
+          contentContainerStyle={styles.formContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
           <Pressable
             onPress={pickImage}
             style={[
@@ -327,7 +331,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
   },
-  formContent: { padding: spacing.lg },
+  formContent: { padding: spacing.lg, paddingBottom: spacing.xxl + spacing.lg },
   imagePicker: {
     height: 140,
     borderWidth: 1,
@@ -352,7 +356,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     borderWidth: 1,
   },
-  list: { padding: spacing.lg },
+  list: { padding: spacing.lg, paddingBottom: spacing.xxl },
   bookRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -361,5 +365,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: 1,
     marginBottom: spacing.sm,
+    gap: spacing.md,
   },
 });

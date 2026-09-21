@@ -50,6 +50,7 @@ export function LibraryScreen() {
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.grid}
+        columnWrapperStyle={books.length > 0 ? styles.columnWrapper : undefined}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={refresh} tintColor={colors.primary} />
         }
@@ -73,5 +74,6 @@ export function LibraryScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  grid: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xl },
+  grid: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xxl },
+  columnWrapper: { justifyContent: 'flex-start' },
 });

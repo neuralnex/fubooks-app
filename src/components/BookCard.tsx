@@ -96,6 +96,7 @@ const CARD_RADIUS = radius.lg;
 const styles = StyleSheet.create({
   card: {
     flex: 1,
+    maxWidth: '48%',
     margin: spacing.sm,
     borderRadius: CARD_RADIUS,
     borderWidth: 1,

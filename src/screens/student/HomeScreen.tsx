@@ -52,6 +52,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         keyExtractor={(item) => item.id}
         numColumns={2}
         contentContainerStyle={styles.grid}
+        columnWrapperStyle={styles.columnWrapper}
         onEndReachedThreshold={0.4}
         onEndReached={loadMore}
         refreshing={loading}
@@ -92,5 +93,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
-  grid: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xl },
+  grid: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xxl },
+  columnWrapper: { justifyContent: 'flex-start' },
 });

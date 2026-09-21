@@ -18,6 +18,7 @@ interface ButtonProps {
   loading?: boolean;
   style?: StyleProp<ViewStyle>;
   fullWidth?: boolean;
+  textColor?: string;
 }
 
 export function Button({
@@ -28,6 +29,7 @@ export function Button({
   loading,
   style,
   fullWidth = true,
+  textColor: customTextColor,
 }: ButtonProps) {
   const { colors } = useTheme();
   const isDisabled = disabled || loading;
@@ -40,7 +42,9 @@ export function Button({
       : 'transparent';
 
   const borderColor = variant === 'outline' ? colors.border : 'transparent';
-  const textColor = variant === 'primary' || variant === 'secondary' ? '#FFFFFF' : colors.primary;
+  const textColor =
+    customTextColor ??
+    (variant === 'primary' || variant === 'secondary' ? '#FFFFFF' : colors.primary);
 
   return (
     <Pressable

@@ -68,8 +68,9 @@ export function WalletScreen({
                 <Button
                   label="Fund Wallet"
                   onPress={() => navigation.navigate('FundWallet')}
-                  variant="primary"
-                  style={styles.actionButton}
+                  fullWidth={false}
+                  textColor={colors.primary}
+                  style={[styles.actionButton, styles.fundButton]}
                 />
                 {/* "Withdraw Funds" — visually disabled teaser. Tapping NEVER calls an
                     API or navigates to a payout form; it only opens the Coming Soon sheet. */}
@@ -139,7 +140,7 @@ export function WalletScreen({
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  listContent: { padding: spacing.lg },
+  listContent: { padding: spacing.lg, paddingBottom: spacing.xxl },
   balanceCard: {
     borderRadius: radius.xl,
     padding: spacing.xl,
@@ -158,6 +159,9 @@ const styles = StyleSheet.create({
   actionButton: {
     flex: 1,
   },
+  fundButton: {
+    backgroundColor: '#FFFFFF',
+  },
   withdrawButton: {
     flex: 1,
     flexDirection: 'row',
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingVertical: spacing.md,
     backgroundColor: 'rgba(255,255,255,0.15)',
-    opacity: 0.6,
+    opacity: 0.8,
   },
   withdrawText: {
     color: '#FFFFFF',
@@ -179,5 +183,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: spacing.md,
     borderBottomWidth: 1,
+    gap: spacing.md,
   },
 });
