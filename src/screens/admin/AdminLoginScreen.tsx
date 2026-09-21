@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useTheme } from '../../theme/ThemeContext';
 import { spacing, radius, typography } from '../../theme/colors';
 import { Button } from '../../components/Button';
@@ -39,12 +40,21 @@ export function AdminLoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inner}>
-            <Text style={[typography.h1, { color: colors.primary }]}>FUBOOKS Admin</Text>
-            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
+            <View style={styles.logoWrap}>
+              <Image
+                source={require('../../../assets/logo.png')}
+                style={styles.logo}
+                contentFit="contain"
+              />
+            </View>
+            <Text style={[typography.h2, { color: colors.primary, textAlign: 'center', marginTop: spacing.md }]}>
+              Admin Portal
+            </Text>
+            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs, textAlign: 'center' }]}>
               Sign in to manage the catalog and view analytics.
             </Text>
 
-            <View style={{ marginTop: spacing.xxl }}>
+            <View style={{ marginTop: spacing.xl }}>
               <Text
                 style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}
               >
@@ -124,10 +134,28 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     alignSelf: 'center',
   },
+  logoWrap: {
+    width: 140,
+    height: 140,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    padding: spacing.sm,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
+  },
   input: {
     borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.md,
+    fontSize: 16,
   },
 });

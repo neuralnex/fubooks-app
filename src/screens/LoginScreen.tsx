@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Image } from 'expo-image';
 import { useLoginWithEmail } from '@privy-io/expo';
 import { useTheme } from '../theme/ThemeContext';
 import { spacing, radius, typography } from '../theme/colors';
@@ -65,12 +66,18 @@ export function LoginScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inner}>
-            <Text style={[typography.h1, { color: colors.primary }]}>FUBOOKS</Text>
-            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
+            <View style={styles.logoWrap}>
+              <Image
+                source={require('../../assets/logo.png')}
+                style={styles.logo}
+                contentFit="contain"
+              />
+            </View>
+            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm, textAlign: 'center' }]}>
               Textbooks for FUTO students, delivered to your hostel.
             </Text>
 
-            <View style={{ marginTop: spacing.xxl }}>
+            <View style={{ marginTop: spacing.xl }}>
               <Text
                 style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}
               >
@@ -173,6 +180,23 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 440,
     alignSelf: 'center',
+  },
+  logoWrap: {
+    width: 140,
+    height: 140,
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: radius.xl,
+    padding: spacing.sm,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  logo: {
+    width: '100%',
+    height: '100%',
   },
   input: {
     borderWidth: 1,

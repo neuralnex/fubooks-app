@@ -27,7 +27,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#6C4CF1"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "ng.futo.fubooks",
       "permissions": [
