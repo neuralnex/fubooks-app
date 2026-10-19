@@ -16,7 +16,7 @@ import { ComingSoonSheet } from '../../components/ComingSoonSheet';
 import { Button } from '../../components/Button';
 
 const SOURCE_LABELS: Record<string, string> = {
-  MONNIFY_DEPOSIT: 'Wallet funding',
+  SQUAD_DEPOSIT: 'Wallet funding',
   BOOK_PURCHASE: 'Book purchase',
   REFUND: 'Refund',
   ADMIN_ADJUSTMENT: 'Adjustment',

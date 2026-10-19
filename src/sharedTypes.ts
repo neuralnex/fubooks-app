@@ -39,7 +39,7 @@ export interface UserProfileDTO {
   kycStatus: KycStatus;
   accountNumber: string | null;
   bankName: string | null;
-  accountReference: string | null;
+  customerIdentifier: string | null;
   hasDeliveryDetails: boolean;
 }
 
@@ -74,7 +74,17 @@ export interface InitiateFundingResponse {
   accountNumber: string;
   bankName: string;
   accountName: string;
-  accountReference: string;
+  customerIdentifier: string;
+}
+
+export interface InitiateFundingInput {
+  firstName: string;
+  lastName: string;
+  mobileNumber: string;
+  dateOfBirth: string;
+  bvn: string;
+  gender: '1' | '2';
+  address: string;
 }
 
 export interface ApiErrorBody {

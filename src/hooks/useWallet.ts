@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiClient, ApiClientError } from '../services/apiClient';
 import { useAuthToken } from './useAuthToken';
-import type { WalletDTO, InitiateFundingResponse } from '../sharedTypes';
+import type { WalletDTO, InitiateFundingInput, InitiateFundingResponse } from '../sharedTypes';
 
 interface WalletTransactionView {
   id: string;
@@ -45,11 +45,18 @@ export function useWallet() {
   }, [refresh]);
 
   const initiateFunding = useCallback(
-    async (input: { bvn?: string; nin?: string }): Promise<InitiateFundingResponse> => {
+    async (input: InitiateFundingInput): Promise<InitiateFundingResponse> => {
       return apiClient.post<InitiateFundingResponse>('/api/v1/wallet/fund', input, getToken);
     },
     [getToken]
   );
 
-  return { wallet, transactions, loading, error, refresh, initiateFunding };
+  const getFundingAccount = useCallback(async (): Promise<InitiateFundingResponse | null> => {
+    const result = await apiClient.get<{ account: InitiateFundingResponse | null }>(
+      '/api/v1/wallet/funding-account', getToken
+    );
+    return result.account;
+  }, [getToken]);
+
+  return { wallet, transactions, loading, error, refresh, initiateFunding, getFundingAccount };
 }
