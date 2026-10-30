@@ -17,7 +17,8 @@ import { spacing, radius, typography } from '../../theme/colors';
 import { Button } from '../../components/Button';
 import { apiClient, ApiClientError } from '../../services/apiClient';
 import { useAdminGetToken } from '../../context/AdminAuthContext';
-import { FUTO_LEVELS, FUTO_FACULTIES, type FutoLevel, type Faculty } from '../../sharedTypes';
+import { FUTO_LEVELS, type FutoLevel, type Faculty } from '../../sharedTypes';
+import { FUTO_FACULTY_OPTIONS, getFacultyName } from '../../data/futoAcademic';
 
 interface AdminBookRow {
   id: string;
@@ -26,6 +27,7 @@ interface AdminBookRow {
   courseCode: string;
   level: FutoLevel;
   faculty: Faculty;
+  department: string | null;
   price: string;
   stock: number;
   imageUrl: string | null;
@@ -38,6 +40,7 @@ const EMPTY_FORM = {
   courseCode: '',
   level: 'L100' as FutoLevel,
   faculty: 'SICT' as Faculty,
+  department: '',
   price: '',
   stock: '',
   imageUrl: '' as string | null,
@@ -81,7 +84,7 @@ export function AdminBooksScreen() {
   const handleSubmit = async () => {
     const price = Number(form.price);
     const stock = Number(form.stock);
-    if (!form.title || !form.author || !form.courseCode || !price || Number.isNaN(stock)) {
+    if (!form.title || !form.author || !form.courseCode || !form.department || !price || Number.isNaN(stock)) {
       Alert.alert('Missing fields', 'Please fill in all required fields with valid values.');
       return;
     }
@@ -96,6 +99,7 @@ export function AdminBooksScreen() {
           courseCode: form.courseCode,
           level: form.level,
           faculty: form.faculty,
+          department: form.department,
           price,
           stock,
           imageUrl: form.imageUrl || undefined,
@@ -190,9 +194,20 @@ export function AdminBooksScreen() {
             Faculty
           </Text>
           <ChipRow
-            items={FUTO_FACULTIES}
+            items={FUTO_FACULTY_OPTIONS.map((option) => option.code)}
             selected={form.faculty}
-            onSelect={(v) => setForm((f) => ({ ...f, faculty: v }))}
+            onSelect={(v) => setForm((f) => ({ ...f, faculty: v, department: '' }))}
+            colors={colors}
+            formatLabel={(code) => getFacultyName(code) ?? code}
+          />
+
+          <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.md }]}>
+            Department
+          </Text>
+          <ChipRow
+            items={FUTO_FACULTY_OPTIONS.find((option) => option.code === form.faculty)?.departments ?? []}
+            selected={form.department}
+            onSelect={(v) => setForm((f) => ({ ...f, department: v }))}
             colors={colors}
           />
 
@@ -232,7 +247,7 @@ export function AdminBooksScreen() {
                   {item.title}
                 </Text>
                 <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                  {item.courseCode} · {item.level} · {item.faculty} · Stock: {item.stock}
+                  {item.courseCode} · {item.level} · {getFacultyName(item.faculty)} · {item.department ?? 'No department'} · Stock: {item.stock}
                 </Text>
               </View>
               <Text style={[typography.bodyBold, { color: colors.primary }]}>

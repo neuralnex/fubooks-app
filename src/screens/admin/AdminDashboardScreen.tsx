@@ -7,6 +7,7 @@ import { spacing, radius, typography } from '../../theme/colors';
 import { apiClient } from '../../services/apiClient';
 import { useAdminGetToken } from '../../context/AdminAuthContext';
 import type { LevelRevenuePoint, FacultyDistributionPoint } from '../../sharedTypes';
+import { getFacultyName } from '../../data/futoAcademic';
 
 const FACULTY_COLORS = ['#6C4CF1', '#2563EB', '#10B981', '#F59E0B', '#EF4444', '#06B6D4'];
 
@@ -63,7 +64,7 @@ export function AdminDashboardScreen() {
       value: p.totalOrders,
       color: FACULTY_COLORS[i % FACULTY_COLORS.length],
       text: `${p.percentage}%`,
-      label: p.faculty,
+      label: getFacultyName(p.faculty) ?? p.faculty,
     }));
 
   return (

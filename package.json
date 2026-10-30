@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@ethersproject/shims": "^5.7.0",
+    "@idikaeliada/futo-departments": "^1.0.3",
     "@privy-io/expo": "^0.69.4",
     "@privy-io/expo-native-extensions": "0.0.11",
     "@react-native-async-storage/async-storage": "2.2.0",

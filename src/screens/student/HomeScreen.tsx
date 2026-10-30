@@ -6,6 +6,7 @@ import { spacing, radius, typography } from '../../theme/colors';
 import { LevelSelector } from '../../components/LevelSelector';
 import { BookCard } from '../../components/BookCard';
 import { useBooks } from '../../hooks/useBooks';
+import { useAuthToken } from '../../hooks/useAuthToken';
 import type { BookDTO, FutoLevel } from '../../sharedTypes';
 
 interface HomeScreenProps {
@@ -14,9 +15,14 @@ interface HomeScreenProps {
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const { colors } = useTheme();
+  const { getToken } = useAuthToken();
   const [level, setLevel] = useState<FutoLevel>('L100');
   const [search, setSearch] = useState('');
-  const { books, loading, loadingMore, loadMore, refresh } = useBooks(level, search || undefined);
+  const { books, loading, loadingMore, loadMore, refresh } = useBooks(
+    level,
+    search || undefined,
+    getToken
+  );
 
   return (
     <SafeAreaView

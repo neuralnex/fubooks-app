@@ -32,7 +32,9 @@ export function useProfile() {
 
   const updateProfile = useCallback(
     async (
-      data: Partial<Pick<UserProfileDTO, 'fullName' | 'email' | 'matricNumber' | 'level' | 'faculty'>>
+      data: Partial<
+        Pick<UserProfileDTO, 'fullName' | 'email' | 'matricNumber' | 'level' | 'faculty' | 'department'>
+      >
     ) => {
       // M-4: strip empty strings so the server's zod .email() and matricNumber regex
       // don't reject what is meant to be "leave this field alone" in the UI.

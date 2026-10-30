@@ -7,7 +7,20 @@
 export const FUTO_LEVELS = ['L100', 'L200', 'L300', 'L400', 'L500', 'L600'] as const;
 export type FutoLevel = (typeof FUTO_LEVELS)[number];
 
-export const FUTO_FACULTIES = ['SEET', 'SICT', 'SOBS', 'SOHT', 'SOES', 'SMAT'] as const;
+export const FUTO_FACULTIES = [
+  'SEET',
+  'SMAT',
+  'SOBS',
+  'SAAT',
+  'SICT',
+  'SOES',
+  'SLIT',
+  'SOHT',
+  'SESET',
+  'SBMS',
+  'COM',
+  'CESPESS',
+] as const;
 export type Faculty = (typeof FUTO_FACULTIES)[number];
 
 export const ADMIN_ROLES = ['SUPER_ADMIN', 'ADMIN'] as const;
@@ -23,6 +36,7 @@ export interface BookDTO {
   courseCode: string;
   level: FutoLevel;
   faculty: Faculty;
+  department: string | null;
   price: string;
   stock: number;
   imageUrl: string | null;
@@ -36,6 +50,7 @@ export interface UserProfileDTO {
   matricNumber: string | null;
   level: FutoLevel | null;
   faculty: Faculty | null;
+  department: string | null;
   kycStatus: KycStatus;
   accountNumber: string | null;
   bankName: string | null;

@@ -6,7 +6,8 @@ import { spacing, radius, typography } from '../theme/colors';
 import { Button } from '../components/Button';
 import { useProfile } from '../hooks/useProfile';
 import { useAuthToken } from '../hooks/useAuthToken';
-import { FUTO_LEVELS, FUTO_FACULTIES, type FutoLevel, type Faculty } from '../sharedTypes';
+import { FUTO_LEVELS, type FutoLevel, type Faculty } from '../sharedTypes';
+import { FUTO_FACULTY_OPTIONS } from '../data/futoAcademic';
 
 export function ProfileScreen() {
   const { colors, mode, toggle } = useTheme();
@@ -17,6 +18,7 @@ export function ProfileScreen() {
   const [matricNumber, setMatricNumber] = useState('');
   const [level, setLevel] = useState<FutoLevel | undefined>(undefined);
   const [faculty, setFaculty] = useState<Faculty | undefined>(undefined);
+  const [department, setDepartment] = useState<string | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,13 +28,14 @@ export function ProfileScreen() {
       setMatricNumber(profile.matricNumber ?? '');
       setLevel(profile.level ?? undefined);
       setFaculty(profile.faculty ?? undefined);
+      setDepartment(profile.department ?? undefined);
     }
   }, [profile]);
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateProfile({ fullName, email, matricNumber, level, faculty });
+      await updateProfile({ fullName, email, matricNumber, level, faculty, department });
       Alert.alert('Success', 'Profile updated successfully.');
     } catch (err) {
       Alert.alert('Update failed', err instanceof Error ? err.message : 'Please try again.');
@@ -107,26 +110,68 @@ export function ProfileScreen() {
           Faculty
         </Text>
         <View style={styles.chipRow}>
-          {FUTO_FACULTIES.map((f) => (
+          {FUTO_FACULTY_OPTIONS.map((option) => (
             <Pressable
-              key={f}
-              onPress={() => setFaculty(f)}
+              key={option.code}
+              onPress={() => {
+                setFaculty(option.code);
+                setDepartment(undefined);
+              }}
               style={[
                 styles.chip,
                 {
-                  backgroundColor: faculty === f ? colors.primary : colors.surface,
+                  backgroundColor: faculty === option.code ? colors.primary : colors.surface,
                   borderColor: colors.border,
                 },
               ]}
             >
               <Text
-                style={{ color: faculty === f ? '#FFFFFF' : colors.textSecondary, fontWeight: '600' }}
+                style={{ color: faculty === option.code ? '#FFFFFF' : colors.textSecondary, fontWeight: '600' }}
               >
-                {f}
+                {option.name}
               </Text>
             </Pressable>
           ))}
         </View>
+
+        {faculty ? (
+          <>
+            <Text
+              style={[
+                typography.caption,
+                { color: colors.textSecondary, marginTop: spacing.md, marginBottom: spacing.xs },
+              ]}
+            >
+              Department
+            </Text>
+            <View style={styles.chipRow}>
+              {FUTO_FACULTY_OPTIONS.find((option) => option.code === faculty)?.departments.map(
+                (name) => (
+                  <Pressable
+                    key={name}
+                    onPress={() => setDepartment(name)}
+                    style={[
+                      styles.chip,
+                      {
+                        backgroundColor: department === name ? colors.primary : colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={{
+                        color: department === name ? '#FFFFFF' : colors.textSecondary,
+                        fontWeight: '600',
+                      }}
+                    >
+                      {name}
+                    </Text>
+                  </Pressable>
+                )
+              )}
+            </View>
+          </>
+        ) : null}
 
         <Button
           label="Save Changes"

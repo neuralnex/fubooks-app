@@ -14,7 +14,8 @@ interface UseBooksResult {
 
 /**
  * Drives the level-filtered, infinite-scroll FlatList on the student home screen.
- * No auth required — catalog browsing is public per the Just-in-Time KYC spec.
+ * Catalog browsing is public, but send the active session token as well so
+ * deployments with an API-wide auth guard still allow signed-in students to browse.
  *
  * M-2: search input is debounced (300ms) to avoid issuing a request on every keystroke
  * (especially relevant on slow networks where the response might land out of order
@@ -24,7 +25,11 @@ interface UseBooksResult {
  */
 const SEARCH_DEBOUNCE_MS = 300;
 
-export function useBooks(level: FutoLevel, searchQuery?: string): UseBooksResult {
+export function useBooks(
+  level: FutoLevel,
+  searchQuery?: string,
+  getToken?: () => Promise<string | null>
+): UseBooksResult {
   const [books, setBooks] = useState<BookDTO[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -51,7 +56,8 @@ export function useBooks(level: FutoLevel, searchQuery?: string): UseBooksResult
     setError(null);
     try {
       const res = await apiClient.get<{ books: BookDTO[]; nextCursor: string | null }>(
-        buildQuery(null)
+        buildQuery(null),
+        getToken
       );
       setBooks(res.books);
       setCursor(res.nextCursor);
@@ -61,7 +67,7 @@ export function useBooks(level: FutoLevel, searchQuery?: string): UseBooksResult
     } finally {
       setLoading(false);
     }
-  }, [buildQuery]);
+  }, [buildQuery, getToken]);
 
   useEffect(() => {
     // M-2: debounce refresh — when searchQuery changes, wait SEARCH_DEBOUNCE_MS
@@ -84,7 +90,8 @@ export function useBooks(level: FutoLevel, searchQuery?: string): UseBooksResult
     setLoadingMore(true);
     try {
       const res = await apiClient.get<{ books: BookDTO[]; nextCursor: string | null }>(
-        buildQuery(cursor)
+        buildQuery(cursor),
+        getToken
       );
       setBooks((prev) => [...prev, ...res.books]);
       setCursor(res.nextCursor);
@@ -94,7 +101,7 @@ export function useBooks(level: FutoLevel, searchQuery?: string): UseBooksResult
     } finally {
       setLoadingMore(false);
     }
-  }, [buildQuery, cursor, hasMore, loadingMore, loading]);
+  }, [buildQuery, cursor, getToken, hasMore, loadingMore, loading]);
 
   return { books, loading, loadingMore, error, hasMore, loadMore, refresh };
 }

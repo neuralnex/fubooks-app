@@ -7,6 +7,7 @@ import { spacing, radius, typography } from '../../theme/colors';
 import { Button } from '../../components/Button';
 import { useCart } from '../../hooks/useCart';
 import type { BookDTO } from '../../sharedTypes';
+import { getFacultyName } from '../../data/futoAcademic';
 
 interface BookDetailScreenProps {
   route: { params: { book: BookDTO } };
@@ -41,7 +42,10 @@ export function BookDetailScreen({ route, navigation }: BookDetailScreenProps) {
         <View style={[styles.imageWrap, { backgroundColor: colors.surface, borderColor: colors.border }]}>
           {book.imageUrl ? <Image source={{ uri: book.imageUrl }} style={styles.image} contentFit="contain" /> : <Text style={{ fontSize: 64 }}>📘</Text>}
         </View>
-        <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.lg }]}>{book.courseCode} · {book.level} · {book.faculty}</Text>
+        <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.lg }]}>
+          {book.courseCode} · {book.level} · {getFacultyName(book.faculty)}
+          {book.department ? ` · ${book.department}` : ''}
+        </Text>
         <Text style={[typography.h1, { color: colors.textPrimary }]}>{book.title}</Text>
         <Text style={[typography.body, { color: colors.textSecondary }]}>{book.author}</Text>
         <Text style={[typography.h2, { color: colors.primary, marginTop: spacing.md }]}>₦{Number(book.price).toLocaleString('en-NG')}</Text>
