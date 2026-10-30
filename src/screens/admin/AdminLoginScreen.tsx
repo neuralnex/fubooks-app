@@ -50,10 +50,6 @@ export function AdminLoginScreen() {
             <Text style={[typography.h2, { color: colors.primary, textAlign: 'center', marginTop: spacing.md }]}>
               Admin Portal
             </Text>
-            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs, textAlign: 'center' }]}>
-              Sign in to manage the catalog and view analytics.
-            </Text>
-
             <View style={{ marginTop: spacing.xl }}>
               <Text
                 style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}

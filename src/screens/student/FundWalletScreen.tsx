@@ -88,9 +88,6 @@ export function FundWalletScreen({ navigation }: FundWalletScreenProps) {
       {account ? (
         <ScrollView contentContainerStyle={styles.content}>
           <Text style={[typography.h1, { color: colors.textPrimary }]}>Your Funding Account</Text>
-          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
-            Transfer to this dedicated account number. Your wallet will be credited automatically after a successful transfer.
-          </Text>
           <View style={[styles.accountCard, { backgroundColor: colors.primary }]}>
             <Text style={[typography.caption, { color: 'rgba(255,255,255,0.8)' }]}>Account Number</Text>
             <Text style={styles.accountNumber} numberOfLines={1} adjustsFontSizeToFit>{account.accountNumber}</Text>
@@ -102,13 +99,9 @@ export function FundWalletScreen({ navigation }: FundWalletScreenProps) {
       ) : (
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <Text style={[typography.h1, { color: colors.textPrimary }]}>Fund Your Wallet</Text>
-          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
-            Squad requires your BVN and matching identity details to create a dedicated bank account. Your BVN is sent to Squad for verification and is not stored by FUBOOKS.
-          </Text>
-
-          {fieldLabel('First name (as registered with your BVN)')}
+          {fieldLabel('First name')}
           <TextInput value={details.firstName} onChangeText={(v) => update('firstName', v)} autoCapitalize="words" placeholder="First name" placeholderTextColor={colors.textSecondary} style={inputStyle} />
-          {fieldLabel('Last name (as registered with your BVN)')}
+          {fieldLabel('Last name')}
           <TextInput value={details.lastName} onChangeText={(v) => update('lastName', v)} autoCapitalize="words" placeholder="Last name" placeholderTextColor={colors.textSecondary} style={inputStyle} />
           {fieldLabel('Phone number')}
           <TextInput value={details.mobileNumber} onChangeText={(v) => update('mobileNumber', v.replace(/\D/g, '').slice(0, 11))} keyboardType="phone-pad" maxLength={11} placeholder="08012345678" placeholderTextColor={colors.textSecondary} style={inputStyle} />
@@ -117,7 +110,7 @@ export function FundWalletScreen({ navigation }: FundWalletScreenProps) {
           {fieldLabel('BVN')}
           <TextInput value={details.bvn} onChangeText={(v) => update('bvn', v.replace(/\D/g, '').slice(0, 11))} keyboardType="number-pad" maxLength={11} placeholder="Enter 11 digits" placeholderTextColor={colors.textSecondary} style={[inputStyle, { letterSpacing: 2 }]} />
 
-          {fieldLabel('Gender (as registered with your BVN)')}
+          {fieldLabel('Gender')}
           <View style={styles.genderRow}>
             {([{ value: '1', label: 'Male' }, { value: '2', label: 'Female' }] as const).map((item) => {
               const selected = details.gender === item.value;
@@ -128,11 +121,8 @@ export function FundWalletScreen({ navigation }: FundWalletScreenProps) {
               );
             })}
           </View>
-          {fieldLabel('Residential address (as registered with your BVN)')}
+          {fieldLabel('Residential address')}
           <TextInput value={details.address} onChangeText={(v) => update('address', v)} autoCapitalize="words" multiline placeholder="Street address" placeholderTextColor={colors.textSecondary} style={[inputStyle, styles.addressInput]} />
-          <Text style={[typography.small, { color: colors.textSecondary, marginTop: spacing.sm }]}>
-            Account creation requires the submitted details to match your BVN record. Only the last four BVN digits are retained for support.
-          </Text>
           <Button label="Create Funding Account" onPress={handleSubmit} loading={submitting} disabled={
             !details.firstName.trim() || !details.lastName.trim() || details.mobileNumber.length !== 11 || details.dateOfBirth.length !== 10 || details.bvn.length !== 11 || !details.address.trim()
           } style={{ marginTop: spacing.xl }} />

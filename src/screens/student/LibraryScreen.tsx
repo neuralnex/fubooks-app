@@ -63,7 +63,7 @@ export function LibraryScreen() {
                 { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xxl },
               ]}
             >
-              You haven't purchased any books yet. Browse the catalog to get started!
+              No books yet.
             </Text>
           ) : null
         }

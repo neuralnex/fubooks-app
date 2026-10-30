@@ -126,7 +126,7 @@ export function WalletScreen({
                 { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xl },
               ]}
             >
-              No transactions yet. Fund your wallet to get started!
+              No transactions yet.
             </Text>
           ) : null
         }

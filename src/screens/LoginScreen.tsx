@@ -73,10 +73,6 @@ export function LoginScreen() {
                 contentFit="contain"
               />
             </View>
-            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm, textAlign: 'center' }]}>
-              Textbooks for FUTO students, delivered to your hostel.
-            </Text>
-
             <View style={{ marginTop: spacing.xl }}>
               <Text
                 style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.xs }]}
@@ -103,14 +99,6 @@ export function LoginScreen() {
 
               {codeSent && (
                 <View style={{ marginTop: spacing.lg }}>
-                  <Text
-                    style={[
-                      typography.caption,
-                      { color: colors.textSecondary, marginBottom: spacing.xs },
-                    ]}
-                  >
-                    Enter the 6-digit code sent to your email
-                  </Text>
                   <TextInput
                     value={code}
                     onChangeText={setCode}

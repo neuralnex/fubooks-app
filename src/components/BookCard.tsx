@@ -31,9 +31,6 @@ function BookPlaceholder({ courseCode }: { courseCode: string }) {
       <Text style={[typography.small, { color: colors.primary, marginTop: spacing.xs }]}>
         {courseCode}
       </Text>
-      <Text style={[styles.placeholderLabel, { color: colors.textSecondary }]}>
-        FUTO Book Placeholder
-      </Text>
     </View>
   );
 }
@@ -118,12 +115,6 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  placeholderLabel: {
-    fontSize: 9,
-    marginTop: 4,
-    textAlign: 'center',
-    paddingHorizontal: spacing.sm,
   },
   badge: {
     position: 'absolute',

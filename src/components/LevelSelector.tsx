@@ -53,7 +53,8 @@ export function LevelSelector({ selected, onSelect }: LevelSelectorProps) {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
     flexDirection: 'row',
     alignItems: 'center',
   },

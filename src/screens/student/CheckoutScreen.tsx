@@ -5,7 +5,7 @@
  * Reduced-motion setting  the check seal is shown on its final frame.
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
@@ -35,7 +35,6 @@ interface CheckoutPayment {
   deliveryAddress: string;
   deliveryPhone: string;
   itemBookIds: string[];
-  itemCount?: number;
   paymentAllowed: boolean;
   refundReference?: string | null;
 }
@@ -59,14 +58,12 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
   const [submitting, setSubmitting] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [statusNote, setStatusNote] = useState<string | null>(null);
   const [widgetError, setWidgetError] = useState<string | null>(null);
   const [widgetReady, setWidgetReady] = useState(false);
   const [webViewAttempt, setWebViewAttempt] = useState(0);
   const idempotencyKey = useRef(Crypto.randomUUID());
   const finished = useRef(false);
   const subtotal = useMemo(() => items.reduce((sum, item) => sum + Number(item.book.price) * item.quantity, 0), [items]);
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const fee = fulfillment === 'DELIVERY' ? 500 : 0;
   const reportPaymentIssue = useCallback((type: 'sdk_load' | 'sdk_open' | 'webview' | 'http' | 'sdk_timeout', statusCode?: number) => {
     if (!payment) return;
@@ -102,10 +99,6 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         removeMany(payment.itemBookIds);
         setPayment({ ...payment, status: 'PAID' });
         setChecking(false);
-        setStatusNote(null);
-        Alert.alert('Payment confirmed', 'Your order is confirmed. You can track pickup or delivery from your orders.', [
-          { text: 'View library', onPress: () => navigation.navigate('LibraryTab') },
-        ]);
         return 'finished';
       } else if (status.status === 'FAILED') {
         finished.current = true;
@@ -113,23 +106,19 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         setError('Payment error. Please try again.');
         idempotencyKey.current = Crypto.randomUUID();
         setChecking(false);
-        setStatusNote(null);
         return 'finished';
       } else if (status.status === 'REFUND_PENDING' || status.status === 'REFUND_PROCESSING' || status.status === 'REFUND_REQUESTED' || status.status === 'REFUNDED') {
         finished.current = true;
         setPayment({ ...payment, status: status.status, refundReference: status.refundReference });
         setChecking(false);
-        setStatusNote(null);
         return 'finished';
       }
-      setStatusNote('Waiting for payment confirmation…');
       return 'pending';
     } catch {
       // A slow or interrupted status request does not mean the payment failed.
-      setStatusNote('Checking connection…');
       return 'network_error';
     }
-  }, [payment, getToken, removeMany, navigation]);
+  }, [payment, getToken, removeMany]);
 
   useEffect(() => {
     if (!checking || !payment) return;
@@ -167,12 +156,11 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
 
   const startPayment = async () => {
     setError(null);
-    setStatusNote(null);
     setWidgetError(null);
     setWidgetReady(false);
     finished.current = false;
     if (!items.length) {
-      setError('Your cart is empty. Add a book before checkout.');
+      setError('Cart is empty.');
       return;
     }
     if (details.fullName.trim().length < 2) {
@@ -239,14 +227,12 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
   };
 
   if (payment?.status === 'PAID') {
-    return <StatusScreen title="Payment confirmed" body="Your books are in your orders." colors={colors} onDone={() => navigation.navigate('LibraryTab')} animation={require('../../../assets/animations/order-success.json')} />;
+    return <StatusScreen title="Payment confirmed" colors={colors} onDone={() => navigation.navigate('LibraryTab')} animation={require('../../../assets/animations/order-success.json')} />;
   }
   if (payment && (payment.status === 'REFUND_PENDING' || payment.status === 'REFUND_PROCESSING' || payment.status === 'REFUND_REQUESTED' || payment.status === 'REFUNDED')) {
     const refunded = payment.status === 'REFUNDED';
-    const pendingReview = payment.status === 'REFUND_PENDING';
     return <StatusScreen
       title={refunded ? 'Refund completed' : 'Refund in progress'}
-      body={refunded ? 'Your refund is complete.' : pendingReview ? 'Your order could not be completed. Contact support about your refund.' : 'Your refund is being processed.'}
       colors={colors}
       onDone={() => navigation.goBack()}
     />;
@@ -259,27 +245,24 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
           <Text style={[typography.bodyBold, { color: colors.primary }]}>← Back to cart</Text>
         </Pressable>
         <Text style={[typography.h1, { color: colors.textPrimary, marginTop: spacing.md }]}>Checkout</Text>
-        <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs }]}>{payment?.itemCount ?? itemCount} {(payment?.itemCount ?? itemCount) === 1 ? 'book' : 'books'}</Text>
-        {!profile?.email ? <Text style={[typography.caption, { color: colors.error, marginTop: spacing.xs }]}>Add an email in your profile to continue.</Text> : null}
         {!profile?.email ? <Pressable onPress={() => navigation.navigate('ProfileTab')} hitSlop={10} style={styles.back}>
-          <Text style={[typography.bodyBold, { color: colors.primary }]}>Open profile to add email</Text>
+          <Text style={[typography.bodyBold, { color: colors.primary }]}>Add email</Text>
         </Pressable> : null}
 
         {!payment ? <>
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[typography.h3, { color: colors.textPrimary, marginBottom: spacing.sm }]}>How would you like to receive your books?</Text>
-          <MethodOption selected={fulfillment === 'PICKUP'} label="Pick up" detail="Old Sug Resource Center · Free" onPress={() => setFulfillment('PICKUP')} colors={colors} />
-          <MethodOption selected={fulfillment === 'DELIVERY'} label="Deliver to me" detail="₦500 delivery fee" onPress={() => setFulfillment('DELIVERY')} colors={colors} />
+          <Text style={[typography.h3, { color: colors.textPrimary, marginBottom: spacing.sm }]}>Fulfillment</Text>
+          <MethodOption selected={fulfillment === 'PICKUP'} label="Pickup" detail={PICKUP_STATION} onPress={() => setFulfillment('PICKUP')} colors={colors} />
+          <MethodOption selected={fulfillment === 'DELIVERY'} label="Delivery" detail="₦500" onPress={() => setFulfillment('DELIVERY')} colors={colors} />
         </View>
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[typography.h3, { color: colors.textPrimary, marginBottom: spacing.sm }]}>Order contact</Text>
           <Field label="Full name" value={details.fullName} onChangeText={(v) => setDetails((d) => ({ ...d, fullName: v }))} colors={colors} />
           <Field label="Phone number" value={details.phoneNumber} onChangeText={(v) => setDetails((d) => ({ ...d, phoneNumber: v }))} keyboardType="phone-pad" colors={colors} />
           {fulfillment === 'DELIVERY' ? <>
             <Field label="Hostel / delivery address" value={details.hostelOrAddress} onChangeText={(v) => setDetails((d) => ({ ...d, hostelOrAddress: v }))} colors={colors} />
-            <Field label="Campus area (optional)" value={details.campusArea ?? ''} onChangeText={(v) => setDetails((d) => ({ ...d, campusArea: v }))} colors={colors} />
-          </> : <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.xs }]}>Pickup point: {PICKUP_STATION}</Text>}
+          <Field label="Campus area" value={details.campusArea ?? ''} onChangeText={(v) => setDetails((d) => ({ ...d, campusArea: v }))} colors={colors} />
+          </> : null}
         </View>
         </> : (
           <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -290,9 +273,9 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         )}
 
         <View style={[styles.card, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-          <Text style={[typography.h3, { color: colors.textPrimary, marginBottom: spacing.md }]}>Payment summary</Text>
+          <Text style={[typography.h3, { color: colors.textPrimary, marginBottom: spacing.md }]}>Summary</Text>
           <SummaryLine label="Books" amount={Number(payment?.subtotal ?? subtotal)} colors={colors} />
-          <SummaryLine label={payment?.fulfillmentMethod === 'DELIVERY' || (!payment && fulfillment === 'DELIVERY') ? 'Delivery' : 'Pickup'} amount={Number(payment?.deliveryFee ?? fee)} colors={colors} />
+          {payment?.fulfillmentMethod === 'DELIVERY' || (!payment && fulfillment === 'DELIVERY') ? <SummaryLine label="Delivery" amount={Number(payment?.deliveryFee ?? fee)} colors={colors} /> : null}
           <View style={[styles.divider, { borderColor: colors.border }]} />
           <SummaryLine label="Total" amount={Number(payment?.total ?? (subtotal + fee))} bold colors={colors} />
         </View>
@@ -300,12 +283,6 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         {error ? <Text accessibilityRole="alert" style={[typography.body, { color: colors.error, marginBottom: spacing.md }]}>{error}</Text> : null}
 
         {payment?.paymentAllowed ? <>
-          <View style={[styles.notice, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>Complete payment below</Text>
-          </View>
-          <Text accessibilityLiveRegion="polite" style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm, marginBottom: spacing.sm }]}>
-            {statusNote ?? 'Waiting for payment confirmation…'}
-          </Text>
           <View style={styles.webviewWrap}>
             <WebView
               key={webViewAttempt}
@@ -321,7 +298,6 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
           </View>
           {widgetError ? <Text accessibilityRole="alert" style={[typography.caption, { color: colors.error, marginBottom: spacing.sm }]}>{widgetError}</Text> : null}
           {widgetError ? <Button label="Try again" onPress={() => { setWidgetError(null); setWidgetReady(false); setWebViewAttempt((attempt) => attempt + 1); }} variant="outline" style={{ marginBottom: spacing.sm }} /> : null}
-          {!widgetReady && !widgetError ? <Text style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.sm }]}>Loading payment…</Text> : null}
           <Button label="Check payment" onPress={() => { finished.current = false; setChecking(true); }} variant="outline" />
         </> : (
           <Button label={`Pay ₦${Number(payment?.total ?? (subtotal + fee)).toLocaleString('en-NG')}`} onPress={startPayment} loading={submitting} disabled={items.length === 0 || checking} />
@@ -364,11 +340,11 @@ function SummaryLine({ label, amount, bold, colors }: { label: string; amount: n
   return <View style={styles.summaryLine}><Text style={[bold ? typography.bodyBold : typography.body, { color: bold ? colors.textPrimary : colors.textSecondary }]}>{label}</Text><Text style={[bold ? typography.bodyBold : typography.body, { color: bold ? colors.primary : colors.textPrimary }]}>₦{amount.toLocaleString('en-NG')}</Text></View>;
 }
 
-function StatusScreen({ title, body, colors, onDone, animation }: { title: string; body: string; colors: { background: string; textPrimary: string; textSecondary: string }; onDone: () => void; animation?: React.ComponentProps<typeof LottieIllustration>['source'] }) {
+function StatusScreen({ title, body, colors, onDone, animation }: { title: string; body?: string; colors: { background: string; textPrimary: string; textSecondary: string }; onDone: () => void; animation?: React.ComponentProps<typeof LottieIllustration>['source'] }) {
   return <SafeAreaView style={[styles.status, { backgroundColor: colors.background }]}>
     {animation ? <LottieIllustration source={animation} size={136} label="Order confirmed" /> : null}
     <Text style={[typography.h1, { color: colors.textPrimary, textAlign: 'center' }]}>{title}</Text>
-    <Text style={[typography.body, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm }]}>{body}</Text>
+    {body ? <Text style={[typography.body, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm }]}>{body}</Text> : null}
     <Button label="Done" onPress={onDone} style={{ marginTop: spacing.xl, alignSelf: 'stretch' }} />
   </SafeAreaView>;
 }
@@ -384,7 +360,6 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderRadius: radius.md, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, minHeight: 44 },
   summaryLine: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.sm },
   divider: { borderTopWidth: 1, marginVertical: spacing.md },
-  notice: { borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, marginTop: spacing.lg, marginBottom: spacing.sm },
   webviewWrap: { height: 520, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.md },
   webview: { flex: 1, backgroundColor: 'transparent' },
   status: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },

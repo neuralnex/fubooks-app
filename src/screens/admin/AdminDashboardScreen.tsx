@@ -163,7 +163,7 @@ function EmptyState({ colors }: { colors: { textSecondary: string } }) {
     <Text
       style={{ color: colors.textSecondary, textAlign: 'center', paddingVertical: spacing.xl }}
     >
-      No completed orders yet.
+      No data.
     </Text>
   );
 }

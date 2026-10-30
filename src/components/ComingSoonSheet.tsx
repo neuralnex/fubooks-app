@@ -67,18 +67,7 @@ export function ComingSoonSheet({ visible, onClose }: ComingSoonSheetProps) {
         </View>
 
         <Text style={[typography.h2, { color: colors.textPrimary, textAlign: 'center' }]}>
-          Bank Withdrawals Coming Soon!
-        </Text>
-
-        <Text
-          style={[
-            typography.body,
-            { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm },
-          ]}
-        >
-          We are currently finalizing clearing integrations with our banking networks. You will
-          soon be able to withdraw left-over wallet funds directly to your personal Nigerian bank
-          account (GTB, Kuda, Access, etc.).
+          Coming soon
         </Text>
 
         <Pressable

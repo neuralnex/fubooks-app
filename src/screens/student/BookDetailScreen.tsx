@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useTheme } from '../../theme/ThemeContext';
@@ -24,7 +24,6 @@ export function BookDetailScreen({ route, navigation }: BookDetailScreenProps) {
   const addBook = () => {
     if (book.stock <= 0) return;
     add(book);
-    Alert.alert('Added to cart', `${book.title} quantity: ${inCart + 1}.`);
   };
 
   return (

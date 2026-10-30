@@ -31,14 +31,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
     >
       <View style={styles.header}>
         <Text style={[typography.h1, { color: colors.textPrimary }]}>FUBOOKS</Text>
-        <Text style={[typography.body, { color: colors.textSecondary }]}>
-          Find textbooks for your courses
-        </Text>
         <TextInput
           value={search}
           onChangeText={setSearch}
           onSubmitEditing={refresh}
-          placeholder="Search by title, author, or course code"
+          placeholder="Search books"
           placeholderTextColor={colors.textSecondary}
           style={[
             styles.search,
@@ -79,7 +76,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
                 { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xxl },
               ]}
             >
-              No books found for {level.replace('L', '')}L yet.
+              No books found.
             </Text>
           ) : null
         }
@@ -93,7 +90,7 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm },
   search: {
     marginTop: spacing.md,
-    marginBottom: spacing.sm,
+    marginBottom: 0,
     borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.md,

@@ -70,9 +70,6 @@ export function AdminManagementScreen() {
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.content}>
           <Text style={[typography.h2, { color: colors.textPrimary }]}>Admin Management</Text>
-          <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
-            Only super admins can create or manage other admin accounts.
-          </Text>
         </View>
       </SafeAreaView>
     );

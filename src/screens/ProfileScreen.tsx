@@ -36,7 +36,7 @@ export function ProfileScreen() {
     setSaving(true);
     try {
       await updateProfile({ fullName, email, matricNumber, level, faculty, department });
-      Alert.alert('Success', 'Profile updated successfully.');
+      Alert.alert('Saved');
     } catch (err) {
       Alert.alert('Update failed', err instanceof Error ? err.message : 'Please try again.');
     } finally {

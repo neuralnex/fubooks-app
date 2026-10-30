@@ -155,7 +155,7 @@ export function AdminBooksScreen() {
               />
             ) : (
               <Text style={{ color: colors.textSecondary }}>
-                📷 Tap to add cover image (optional)
+                📷
               </Text>
             )}
           </Pressable>
@@ -173,7 +173,7 @@ export function AdminBooksScreen() {
             colors={colors}
           />
           <FormInput
-            label="Course Code (e.g. MTH101)"
+            label="Course Code"
             value={form.courseCode}
             onChange={(v) => setForm((f) => ({ ...f, courseCode: v }))}
             colors={colors}

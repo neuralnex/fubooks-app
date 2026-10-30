@@ -37,7 +37,6 @@ export function CartScreen({ navigation }: CartScreenProps) {
           <View style={styles.empty}>
             <LottieIllustration source={require('../../../assets/animations/cart-empty.json')} size={184} label="Two books floating above a soft shadow" loop />
             <Text style={[typography.h2, { color: colors.textPrimary }]}>Your cart is empty</Text>
-            <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm, textAlign: 'center' }]}>Browse the catalog and add the books you need.</Text>
             <Button label="Browse books" onPress={() => navigation.navigate('HomeTab')} style={{ marginTop: spacing.lg, minWidth: 180 }} />
           </View>
         )}
@@ -47,7 +46,6 @@ export function CartScreen({ navigation }: CartScreenProps) {
               <Text style={[typography.body, { color: colors.textSecondary }]}>Books ({itemCount})</Text>
               <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>₦{subtotal.toLocaleString('en-NG')}</Text>
             </View>
-            <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm }]}>Choose pickup or ₦500 delivery at checkout.</Text>
             <Button label="Continue to checkout" onPress={() => navigation.navigate('Checkout')} style={{ marginTop: spacing.lg }} />
           </View>
         ) : null}
