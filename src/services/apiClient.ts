@@ -35,11 +35,12 @@ async function request<T>(
     getToken?: GetTokenFn;
     skipAuth?: boolean;
     timeoutMs?: number;
+    headers?: Record<string, string>;
   } = {}
 ): Promise<T> {
   const { method = 'GET', body, getToken, skipAuth = false, timeoutMs = DEFAULT_TIMEOUT_MS } = options;
 
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = { ...options.headers };
   // Only set Content-Type when there's a body to send. GETs without a body don't
   // need it, and some upstreams reject unsolicited Content-Type on GET.
   if (body !== undefined) {
@@ -97,8 +98,8 @@ async function request<T>(
 
 export const apiClient = {
   get: <T,>(path: string, getToken?: GetTokenFn) => request<T>(path, { method: 'GET', getToken }),
-  post: <T,>(path: string, body?: unknown, getToken?: GetTokenFn) =>
-    request<T>(path, { method: 'POST', body, getToken }),
+  post: <T,>(path: string, body?: unknown, getToken?: GetTokenFn, headers?: Record<string, string>) =>
+    request<T>(path, { method: 'POST', body, getToken, headers }),
   patch: <T,>(path: string, body?: unknown, getToken?: GetTokenFn) =>
     request<T>(path, { method: 'PATCH', body, getToken }),
   put: <T,>(path: string, body?: unknown, getToken?: GetTokenFn) =>

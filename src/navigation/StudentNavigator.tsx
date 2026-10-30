@@ -5,10 +5,11 @@ import { Text } from 'react-native';
 import { useTheme } from '../theme/ThemeContext';
 import { HomeScreen } from '../screens/student/HomeScreen';
 import { LibraryScreen } from '../screens/student/LibraryScreen';
-import { WalletScreen } from '../screens/student/WalletScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { BookDetailScreen } from '../screens/student/BookDetailScreen';
-import { FundWalletScreen } from '../screens/student/FundWalletScreen';
+import { CartScreen } from '../screens/student/CartScreen';
+import { CheckoutScreen } from '../screens/student/CheckoutScreen';
+import { useCart } from '../hooks/useCart';
 import type { BookDTO } from '../sharedTypes';
 
 export type HomeStackParamList = {
@@ -16,17 +17,12 @@ export type HomeStackParamList = {
   BookDetail: { book: BookDTO };
 };
 
-export type WalletStackParamList = {
-  WalletHome: undefined;
-  FundWallet: undefined;
-};
-
 const HomeStack = createNativeStackNavigator<HomeStackParamList>();
-const WalletStack = createNativeStackNavigator<WalletStackParamList>();
+const CartStack = createNativeStackNavigator();
 type StudentTabParamList = {
   HomeTab: undefined;
   LibraryTab: undefined;
-  WalletTab: undefined;
+  CartTab: undefined;
   ProfileTab: undefined;
 };
 
@@ -36,33 +32,30 @@ function HomeStackNavigator() {
   return (
     <HomeStack.Navigator screenOptions={{ headerShown: false }}>
       <HomeStack.Screen name="Home" component={HomeScreen} />
-      <HomeStack.Screen
-        name="BookDetail"
-        component={BookDetailScreen}
-        options={{ presentation: 'card' }}
-      />
+      <HomeStack.Screen name="BookDetail" component={BookDetailScreen} options={{ presentation: 'card' }} />
     </HomeStack.Navigator>
   );
 }
 
-function WalletStackNavigator() {
+function CartStackNavigator() {
   return (
-    <WalletStack.Navigator screenOptions={{ headerShown: false }}>
-      <WalletStack.Screen name="WalletHome" component={WalletScreen} />
-      <WalletStack.Screen name="FundWallet" component={FundWalletScreen} />
-    </WalletStack.Navigator>
+    <CartStack.Navigator screenOptions={{ headerShown: false }}>
+      <CartStack.Screen name="CartHome" component={CartScreen} />
+      <CartStack.Screen name="Checkout" component={CheckoutScreen} />
+    </CartStack.Navigator>
   );
 }
 
 const TAB_ICONS: Record<keyof StudentTabParamList, string> = {
   HomeTab: '🏠',
   LibraryTab: '📚',
-  WalletTab: '👛',
+  CartTab: '🛒',
   ProfileTab: '👤',
 };
 
 export function StudentNavigator() {
   const { colors } = useTheme();
+  const cartCount = useCart((state) => state.items.length);
 
   return (
     <Tab.Navigator
@@ -76,11 +69,7 @@ export function StudentNavigator() {
     >
       <Tab.Screen name="HomeTab" component={HomeStackNavigator} options={{ title: 'Browse' }} />
       <Tab.Screen name="LibraryTab" component={LibraryScreen} options={{ title: 'Library' }} />
-      <Tab.Screen
-        name="WalletTab"
-        component={WalletStackNavigator}
-        options={{ title: 'Wallet' }}
-      />
+      <Tab.Screen name="CartTab" component={CartStackNavigator} options={{ title: cartCount ? `Cart (${cartCount})` : 'Cart' }} />
       <Tab.Screen name="ProfileTab" component={ProfileScreen} options={{ title: 'Profile' }} />
     </Tab.Navigator>
   );
