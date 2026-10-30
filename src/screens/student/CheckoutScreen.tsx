@@ -58,6 +58,7 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
   const [submitting, setSubmitting] = useState(false);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusNote, setStatusNote] = useState<string | null>(null);
   const idempotencyKey = useRef(Crypto.randomUUID());
   const finished = useRef(false);
   const subtotal = useMemo(() => items.reduce((sum, book) => sum + Number(book.price), 0), [items]);
@@ -83,8 +84,8 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
     return () => { active = false; };
   }, [getToken]);
 
-  const refreshPaymentStatus = useCallback(async () => {
-    if (!payment || finished.current) return;
+  const refreshPaymentStatus = useCallback(async (): Promise<'pending' | 'network_error' | 'finished'> => {
+    if (!payment || finished.current) return 'finished';
     try {
       const status = await apiClient.get<{ status: string; refundReference?: string | null }>(`/api/v1/checkout/${payment.id}`, getToken);
       if (status.status === 'PAID') {
@@ -92,34 +93,64 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         removeMany(payment.itemBookIds);
         setPayment({ ...payment, status: 'PAID' });
         setChecking(false);
+        setStatusNote(null);
         Alert.alert('Payment confirmed', 'Your order is confirmed. You can track pickup or delivery from your orders.', [
           { text: 'View library', onPress: () => navigation.navigate('LibraryTab') },
         ]);
+        return 'finished';
       } else if (status.status === 'FAILED') {
         finished.current = true;
         setPayment(null);
         setError('Squad could not confirm this payment. You can start a new payment attempt.');
         idempotencyKey.current = Crypto.randomUUID();
         setChecking(false);
+        setStatusNote(null);
+        return 'finished';
       } else if (status.status === 'REFUND_PENDING' || status.status === 'REFUND_PROCESSING' || status.status === 'REFUND_REQUESTED' || status.status === 'REFUNDED') {
         finished.current = true;
         setPayment({ ...payment, status: status.status, refundReference: status.refundReference });
         setChecking(false);
+        setStatusNote(null);
+        return 'finished';
       }
+      setStatusNote('Payment is waiting for Squad confirmation. Keep this screen open, or return to checkout later.');
+      return 'pending';
     } catch {
-      // Keep checking; network issues must not be mistaken for a failed payment.
+      // A slow or interrupted status request does not mean the payment failed.
+      setStatusNote('Network is slow. Your payment is not marked failed; we’ll keep checking when the connection recovers.');
+      return 'network_error';
     }
   }, [payment, getToken, removeMany, navigation]);
 
   useEffect(() => {
     if (!checking || !payment) return;
-    void refreshPaymentStatus();
-    const timer = setInterval(() => void refreshPaymentStatus(), 2500);
-    return () => clearInterval(timer);
-  }, [checking, payment, refreshPaymentStatus]);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let networkFailures = 0;
+
+    const poll = async () => {
+      const result = await refreshPaymentStatus();
+      if (cancelled || result === 'finished' || finished.current) return;
+
+      // Do not overlap requests: API calls time out after 15 seconds, so a fixed
+      // 2.5-second interval could queue several checks during a slow connection.
+      const delay = result === 'network_error'
+        ? Math.min(2_500 * (2 ** networkFailures++), 15_000)
+        : (networkFailures = 0, 3_000);
+      timer = setTimeout(poll, delay);
+    };
+
+    void poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [checking, payment?.id, refreshPaymentStatus]);
 
   const startPayment = async () => {
     setError(null);
+    setStatusNote(null);
+    finished.current = false;
     if (!items.length) {
       setError('Your cart is empty. Add a book before checkout.');
       return;
@@ -248,6 +279,9 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
             <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>Complete payment in Squad checkout</Text>
             <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.xs }]}>You can pay by card, bank transfer, USSD, or bank. Your order is confirmed only after Squad verifies the payment.</Text>
           </View>
+          <Text accessibilityLiveRegion="polite" style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm, marginBottom: spacing.sm }]}>
+            {statusNote ?? 'We’ll confirm the payment from Squad before completing your order.'}
+          </Text>
           <View style={styles.webviewWrap}>
             <WebView
               originWhitelist={['*']}
