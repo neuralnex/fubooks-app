@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
@@ -18,14 +18,13 @@ export function BookDetailScreen({ route, navigation }: BookDetailScreenProps) {
   const { book } = route.params;
   const { colors } = useTheme();
   const { items, add } = useCart();
-  const [added, setAdded] = useState(false);
-  const inCart = items.some((item) => item.id === book.id);
+  const cartItem = items.find((item) => item.book.id === book.id);
+  const inCart = cartItem?.quantity ?? 0;
 
   const addBook = () => {
     if (book.stock <= 0) return;
     add(book);
-    setAdded(true);
-    Alert.alert('Added to cart', `${book.title} is ready for checkout.`);
+    Alert.alert('Added to cart', `${book.title} quantity: ${inCart + 1}.`);
   };
 
   return (
@@ -35,7 +34,7 @@ export function BookDetailScreen({ route, navigation }: BookDetailScreenProps) {
           <Text style={[typography.bodyBold, { color: colors.primary }]}>← Back</Text>
         </Pressable>
         <Pressable onPress={() => navigation.navigate('CartTab')} hitSlop={12} style={styles.backButton}>
-          <Text style={[typography.bodyBold, { color: colors.primary }]}>Cart ({items.length})</Text>
+          <Text style={[typography.bodyBold, { color: colors.primary }]}>Cart ({items.reduce((sum, item) => sum + item.quantity, 0)})</Text>
         </Pressable>
       </View>
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -51,12 +50,12 @@ export function BookDetailScreen({ route, navigation }: BookDetailScreenProps) {
         <Text style={[typography.h2, { color: colors.primary, marginTop: spacing.md }]}>₦{Number(book.price).toLocaleString('en-NG')}</Text>
         <Text style={[typography.caption, { color: book.stock > 0 ? colors.success : colors.error, marginTop: spacing.xs }]}>{book.stock > 0 ? `${book.stock} in stock` : 'Out of stock'}</Text>
         <Button
-          label={book.stock <= 0 ? 'Out of stock' : inCart || added ? 'Already in cart' : 'Add to cart'}
+          label={book.stock <= 0 ? 'Out of stock' : inCart >= book.stock ? `Stock limit (${inCart})` : inCart ? `Add another · ${inCart} in cart` : 'Add to cart'}
           onPress={addBook}
-          disabled={book.stock <= 0 || inCart || added}
+          disabled={book.stock <= 0 || inCart >= book.stock}
           style={{ marginTop: spacing.xl }}
         />
-        {(inCart || added) ? <Button label="Go to cart" onPress={() => navigation.navigate('CartTab')} variant="outline" style={{ marginTop: spacing.sm }} /> : null}
+        {inCart > 0 ? <Button label="Go to cart" onPress={() => navigation.navigate('CartTab')} variant="outline" style={{ marginTop: spacing.sm }} /> : null}
       </ScrollView>
     </SafeAreaView>
   );

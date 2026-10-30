@@ -21,17 +21,18 @@ interface CartScreenProps {
 
 export function CartScreen({ navigation }: CartScreenProps) {
   const { colors } = useTheme();
-  const { items, remove } = useCart();
-  const subtotal = items.reduce((sum, book) => sum + Number(book.price), 0);
+  const { items, add, decrement, remove } = useCart();
+  const subtotal = items.reduce((sum, item) => sum + Number(item.book.price) * item.quantity, 0);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       <FlatList
         data={items}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.book.id}
         contentContainerStyle={styles.list}
         ListHeaderComponent={<Text style={[typography.h1, { color: colors.textPrimary, marginBottom: spacing.lg }]}>Your Cart</Text>}
-        renderItem={({ item }) => <CartRow book={item} onRemove={() => remove(item.id)} />}
+        renderItem={({ item }) => <CartRow book={item.book} quantity={item.quantity} onAdd={() => add(item.book)} onDecrement={() => decrement(item.book.id)} onRemove={() => remove(item.book.id)} />}
         ListEmptyComponent={(
           <View style={styles.empty}>
             <LottieIllustration source={require('../../../assets/animations/cart-empty.json')} size={184} label="Two books floating above a soft shadow" loop />
@@ -43,7 +44,7 @@ export function CartScreen({ navigation }: CartScreenProps) {
         ListFooterComponent={items.length ? (
           <View style={[styles.summary, { backgroundColor: colors.surface, borderColor: colors.border }]}>
             <View style={styles.totalRow}>
-              <Text style={[typography.body, { color: colors.textSecondary }]}>Books ({items.length})</Text>
+              <Text style={[typography.body, { color: colors.textSecondary }]}>Books ({itemCount})</Text>
               <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>₦{subtotal.toLocaleString('en-NG')}</Text>
             </View>
             <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm }]}>Choose pickup or ₦500 delivery at checkout.</Text>
@@ -55,7 +56,7 @@ export function CartScreen({ navigation }: CartScreenProps) {
   );
 }
 
-function CartRow({ book, onRemove }: { book: BookDTO; onRemove: () => void }) {
+function CartRow({ book, quantity, onAdd, onDecrement, onRemove }: { book: BookDTO; quantity: number; onAdd: () => void; onDecrement: () => void; onRemove: () => void }) {
   const { colors } = useTheme();
   return (
     <View style={[styles.row, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -63,7 +64,12 @@ function CartRow({ book, onRemove }: { book: BookDTO; onRemove: () => void }) {
       <View style={styles.details}>
         <Text style={[typography.caption, { color: colors.textSecondary }]}>{book.courseCode} · {book.level}</Text>
         <Text numberOfLines={2} style={[typography.bodyBold, { color: colors.textPrimary, marginTop: 2 }]}>{book.title}</Text>
-        <Text style={[typography.bodyBold, { color: colors.primary, marginTop: spacing.xs }]}>₦{Number(book.price).toLocaleString('en-NG')}</Text>
+        <Text style={[typography.bodyBold, { color: colors.primary, marginTop: spacing.xs }]}>₦{(Number(book.price) * quantity).toLocaleString('en-NG')}</Text>
+        <View style={styles.quantity}>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Remove one ${book.title}`} onPress={onDecrement} style={[styles.quantityButton, { borderColor: colors.border }]}><Text style={{ color: colors.textPrimary }}>−</Text></Pressable>
+          <Text style={[typography.bodyBold, { color: colors.textPrimary, minWidth: 24, textAlign: 'center' }]}>{quantity}</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel={`Add one ${book.title}`} onPress={onAdd} disabled={quantity >= book.stock} style={[styles.quantityButton, { borderColor: colors.border, opacity: quantity >= book.stock ? 0.4 : 1 }]}><Text style={{ color: colors.textPrimary }}>+</Text></Pressable>
+        </View>
       </View>
       <Pressable accessibilityRole="button" accessibilityLabel={`Remove ${book.title} from cart`} onPress={onRemove} hitSlop={10} style={styles.remove}>
         <Text style={[typography.caption, { color: colors.error }]}>Remove</Text>
@@ -80,6 +86,8 @@ const styles = StyleSheet.create({
   coverFallback: { alignItems: 'center', justifyContent: 'center' },
   details: { flex: 1 },
   remove: { minHeight: 40, justifyContent: 'center', paddingHorizontal: spacing.xs },
+  quantity: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.xs },
+  quantityButton: { width: 30, height: 30, borderWidth: 1, borderRadius: radius.sm, alignItems: 'center', justifyContent: 'center' },
   summary: { padding: spacing.lg, borderWidth: 1, borderRadius: radius.lg, marginTop: spacing.md },
   totalRow: { flexDirection: 'row', justifyContent: 'space-between' },
   empty: { flex: 1, minHeight: 300, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },

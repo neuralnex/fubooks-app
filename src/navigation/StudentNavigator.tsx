@@ -55,7 +55,7 @@ const TAB_ICONS: Record<keyof StudentTabParamList, string> = {
 
 export function StudentNavigator() {
   const { colors } = useTheme();
-  const cartCount = useCart((state) => state.items.length);
+  const cartCount = useCart((state) => state.items.reduce((sum, item) => sum + item.quantity, 0));
 
   return (
     <Tab.Navigator

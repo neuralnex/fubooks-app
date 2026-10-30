@@ -5,7 +5,7 @@
  * Reduced-motion setting  the check seal is shown on its final frame.
  */
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView, type WebViewMessageEvent } from 'react-native-webview';
 import * as Crypto from 'expo-crypto';
@@ -35,6 +35,7 @@ interface CheckoutPayment {
   deliveryAddress: string;
   deliveryPhone: string;
   itemBookIds: string[];
+  itemCount?: number;
   paymentAllowed: boolean;
   refundReference?: string | null;
 }
@@ -59,10 +60,18 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusNote, setStatusNote] = useState<string | null>(null);
+  const [widgetError, setWidgetError] = useState<string | null>(null);
+  const [widgetReady, setWidgetReady] = useState(false);
+  const [webViewAttempt, setWebViewAttempt] = useState(0);
   const idempotencyKey = useRef(Crypto.randomUUID());
   const finished = useRef(false);
-  const subtotal = useMemo(() => items.reduce((sum, book) => sum + Number(book.price), 0), [items]);
+  const subtotal = useMemo(() => items.reduce((sum, item) => sum + Number(item.book.price) * item.quantity, 0), [items]);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const fee = fulfillment === 'DELIVERY' ? 500 : 0;
+  const reportPaymentIssue = useCallback((type: 'sdk_load' | 'sdk_open' | 'webview' | 'http' | 'sdk_timeout', statusCode?: number) => {
+    if (!payment) return;
+    void apiClient.post(`/api/v1/checkout/${payment.id}/payment-diagnostic`, { type, statusCode }, getToken).catch(() => {});
+  }, [payment?.id, getToken]);
 
   useEffect(() => {
     getDeliveryDetails().then((saved) => {
@@ -101,7 +110,7 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
       } else if (status.status === 'FAILED') {
         finished.current = true;
         setPayment(null);
-        setError('Squad could not confirm this payment. You can start a new payment attempt.');
+        setError('Payment error. Please try again.');
         idempotencyKey.current = Crypto.randomUUID();
         setChecking(false);
         setStatusNote(null);
@@ -113,11 +122,11 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         setStatusNote(null);
         return 'finished';
       }
-      setStatusNote('Payment is waiting for Squad confirmation. Keep this screen open, or return to checkout later.');
+      setStatusNote('Waiting for payment confirmation…');
       return 'pending';
     } catch {
       // A slow or interrupted status request does not mean the payment failed.
-      setStatusNote('Network is slow. Your payment is not marked failed; we’ll keep checking when the connection recovers.');
+      setStatusNote('Checking connection…');
       return 'network_error';
     }
   }, [payment, getToken, removeMany, navigation]);
@@ -147,9 +156,20 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
     };
   }, [checking, payment?.id, refreshPaymentStatus]);
 
+  useEffect(() => {
+    if (!payment?.paymentAllowed || widgetReady || widgetError) return;
+    const timeout = setTimeout(() => {
+      reportPaymentIssue('sdk_timeout');
+      setWidgetError('Payment error. Please try again.');
+    }, 15_000);
+    return () => clearTimeout(timeout);
+  }, [payment?.id, payment?.paymentAllowed, widgetReady, widgetError, reportPaymentIssue]);
+
   const startPayment = async () => {
     setError(null);
     setStatusNote(null);
+    setWidgetError(null);
+    setWidgetReady(false);
     finished.current = false;
     if (!items.length) {
       setError('Your cart is empty. Add a book before checkout.');
@@ -168,14 +188,14 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
       return;
     }
     if (!profile?.email) {
-      setError('Add an email address to your profile so Squad can send your payment receipt.');
+      setError('Add an email to your profile.');
       return;
     }
 
     setSubmitting(true);
     try {
       const result = await apiClient.post<CheckoutPayment>('/api/v1/checkout', {
-        items: items.map((book) => ({ bookId: book.id })),
+        items: items.map((item) => ({ bookId: item.book.id, quantity: item.quantity })),
         fulfillmentMethod: fulfillment,
         deliveryDetails: {
           fullName: details.fullName.trim(),
@@ -187,7 +207,7 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         },
       }, getToken, { 'Idempotency-Key': idempotencyKey.current });
       if (result.status === 'FAILED') {
-        setError('This payment attempt failed. Start checkout again to try a new payment.');
+        setError('Payment error. Please try again.');
         idempotencyKey.current = Crypto.randomUUID();
         setPayment(null);
       } else if (result.paymentAllowed) {
@@ -195,7 +215,7 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
         setChecking(true);
       } else {
         setPayment(result);
-        setError(`This checkout is ${result.status.toLowerCase().replaceAll('_', ' ')}.`);
+        setError('Payment error. Please try again.');
       }
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Could not start checkout. Please try again.');
@@ -206,7 +226,12 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
 
   const handlePaymentMessage = (event: WebViewMessageEvent) => {
     try {
-      const message = JSON.parse(event.nativeEvent.data) as { type?: string };
+      const message = JSON.parse(event.nativeEvent.data) as { type?: string; message?: string };
+      if (message.type === 'sdk-ready') { setWidgetReady(true); setWidgetError(null); }
+      if (message.type === 'sdk-load-error' || message.type === 'sdk-open-error') {
+        reportPaymentIssue(message.type === 'sdk-load-error' ? 'sdk_load' : 'sdk_open');
+        setWidgetError('Payment error. Please try again.');
+      }
       if (message.type === 'success' || message.type === 'closed') setChecking(true);
     } catch {
       setChecking(true);
@@ -221,7 +246,7 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
     const pendingReview = payment.status === 'REFUND_PENDING';
     return <StatusScreen
       title={refunded ? 'Refund completed' : 'Refund in progress'}
-      body={refunded ? 'Squad confirmed the refund. The books have been removed from your library.' : pendingReview ? 'We could not fulfill this order. Your refund is awaiting review; contact FUBOOKS support if you need an update.' : 'We could not fulfill this order. A refund request is being processed by Squad.'}
+      body={refunded ? 'Your refund is complete.' : pendingReview ? 'Your order could not be completed. Contact support about your refund.' : 'Your refund is being processed.'}
       colors={colors}
       onDone={() => navigation.goBack()}
     />;
@@ -234,8 +259,8 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
           <Text style={[typography.bodyBold, { color: colors.primary }]}>← Back to cart</Text>
         </Pressable>
         <Text style={[typography.h1, { color: colors.textPrimary, marginTop: spacing.md }]}>Checkout</Text>
-        <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs }]}>{payment?.itemBookIds.length ?? items.length} {(payment?.itemBookIds.length ?? items.length) === 1 ? 'book' : 'books'} · payment secured by Squad</Text>
-        <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.xs }]}>{profile?.email ? `Receipt email: ${profile.email}` : 'Add an email to your profile to continue to payment.'}</Text>
+        <Text style={[typography.body, { color: colors.textSecondary, marginTop: spacing.xs }]}>{payment?.itemCount ?? itemCount} {(payment?.itemCount ?? itemCount) === 1 ? 'book' : 'books'}</Text>
+        {!profile?.email ? <Text style={[typography.caption, { color: colors.error, marginTop: spacing.xs }]}>Add an email in your profile to continue.</Text> : null}
         {!profile?.email ? <Pressable onPress={() => navigation.navigate('ProfileTab')} hitSlop={10} style={styles.back}>
           <Text style={[typography.bodyBold, { color: colors.primary }]}>Open profile to add email</Text>
         </Pressable> : null}
@@ -276,25 +301,28 @@ export function CheckoutScreen({ navigation }: CheckoutScreenProps) {
 
         {payment?.paymentAllowed ? <>
           <View style={[styles.notice, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-            <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>Complete payment in Squad checkout</Text>
-            <Text style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.xs }]}>You can pay by card, bank transfer, USSD, or bank. Your order is confirmed only after Squad verifies the payment.</Text>
+            <Text style={[typography.bodyBold, { color: colors.textPrimary }]}>Complete payment below</Text>
           </View>
           <Text accessibilityLiveRegion="polite" style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.sm, marginBottom: spacing.sm }]}>
-            {statusNote ?? 'We’ll confirm the payment from Squad before completing your order.'}
+            {statusNote ?? 'Waiting for payment confirmation…'}
           </Text>
           <View style={styles.webviewWrap}>
             <WebView
+              key={webViewAttempt}
               originWhitelist={['*']}
               source={{ html: squadCheckoutHtml(payment) }}
               javaScriptEnabled
               domStorageEnabled
               onMessage={handlePaymentMessage}
+              onError={() => { reportPaymentIssue('webview'); setWidgetError('Payment error. Please try again.'); }}
+              onHttpError={(event) => { reportPaymentIssue('http', event.nativeEvent.statusCode); setWidgetError('Payment error. Please try again.'); }}
               style={styles.webview}
-              startInLoadingState
-              renderLoading={() => <ActivityIndicator style={styles.webviewLoading} color={colors.primary} />}
             />
           </View>
-          <Button label={checking ? 'Checking payment status…' : 'I have paid — check order'} onPress={() => { finished.current = false; setChecking(true); }} loading={checking} variant="outline" />
+          {widgetError ? <Text accessibilityRole="alert" style={[typography.caption, { color: colors.error, marginBottom: spacing.sm }]}>{widgetError}</Text> : null}
+          {widgetError ? <Button label="Try again" onPress={() => { setWidgetError(null); setWidgetReady(false); setWebViewAttempt((attempt) => attempt + 1); }} variant="outline" style={{ marginBottom: spacing.sm }} /> : null}
+          {!widgetReady && !widgetError ? <Text style={[typography.caption, { color: colors.textSecondary, marginBottom: spacing.sm }]}>Loading payment…</Text> : null}
+          <Button label="Check payment" onPress={() => { finished.current = false; setChecking(true); }} variant="outline" />
         </> : (
           <Button label={`Pay ₦${Number(payment?.total ?? (subtotal + fee)).toLocaleString('en-NG')}`} onPress={startPayment} loading={submitting} disabled={items.length === 0 || checking} />
         )}
@@ -315,7 +343,7 @@ function squadCheckoutHtml(payment: CheckoutPayment) {
     customer_name: payment.customerName,
     payment_channels: ['card', 'bank', 'ussd', 'transfer'],
   }).replace(/</g, '\\u003c');
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body style="font-family:system-ui;padding:12px"><button id="pay" style="width:100%;min-height:48px;border:0;border-radius:12px;background:#6C4CF1;color:white;font-size:16px;font-weight:700">Continue to Squad payment</button><p id="message" style="color:#6B7280;font-size:13px"></p><script src="https://checkout.squadco.com/widget/squad.min.js"></script><script>const config=${config};document.getElementById('pay').onclick=()=>{try{const checkout=new squad({...config,onLoad:()=>{document.getElementById('message').textContent='Squad checkout is ready.'},onClose:()=>window.ReactNativeWebView.postMessage(JSON.stringify({type:'closed'})),onSuccess:()=>window.ReactNativeWebView.postMessage(JSON.stringify({type:'success'}))});checkout.setup();checkout.open()}catch(e){document.getElementById('message').textContent='Could not open Squad checkout. Check your connection and try again.'}}</script></body></html>`;
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1" /></head><body style="font-family:system-ui;padding:12px"><button id="pay" style="width:100%;min-height:48px;border:0;border-radius:12px;background:#6C4CF1;color:white;font-size:16px;font-weight:700">Pay securely</button><script>const post=(type)=>window.ReactNativeWebView.postMessage(JSON.stringify({type}));</script><script src="https://checkout.squadco.com/widget/squad.min.js" onload="post('sdk-ready')" onerror="post('sdk-load-error')"></script><script>const config=${config};document.getElementById('pay').onclick=()=>{try{if(typeof squad!=='function'){post('sdk-load-error');return}const checkout=new squad({...config,onClose:()=>post('closed'),onSuccess:()=>post('success')});checkout.setup();checkout.open()}catch(e){post('sdk-open-error')}}</script></body></html>`;
 }
 
 function MethodOption({ selected, label, detail, onPress, colors }: { selected: boolean; label: string; detail: string; onPress: () => void; colors: { primary: string; border: string; surface: string; textPrimary: string; textSecondary: string } }) {
@@ -359,6 +387,5 @@ const styles = StyleSheet.create({
   notice: { borderWidth: 1, borderRadius: radius.lg, padding: spacing.md, marginTop: spacing.lg, marginBottom: spacing.sm },
   webviewWrap: { height: 520, borderRadius: radius.lg, overflow: 'hidden', marginBottom: spacing.md },
   webview: { flex: 1, backgroundColor: 'transparent' },
-  webviewLoading: { flex: 1 },
   status: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
 });
